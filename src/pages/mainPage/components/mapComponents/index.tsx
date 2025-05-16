@@ -1,4 +1,4 @@
-// MapComponent.tsx
+// MapComponent.tsx for the simple map without actual drive route
 import { GoogleMap, LoadScript, Polyline, Marker } from '@react-google-maps/api'
 import React from 'react'
 

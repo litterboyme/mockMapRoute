@@ -18,6 +18,7 @@ import {
 import MapComponent from './components/mapComponents'
 import AddressInputAutoComplete from './components/addressInput'
 import { LoadScript } from '@react-google-maps/api'
+import DriveRouteMap from './components/driveRouteMap'
 
 const App: React.FC = () => {
   const [origin, setOrigin] = useState<string>('')
@@ -174,7 +175,8 @@ const App: React.FC = () => {
                 <div className="h-full p-2">
                   <div className="relative h-full rounded-lg overflow-hidden shadow-md">
                     <div className="w-full h-full object-cover">
-                      <MapComponent pathCoords={pathCoords ?? []} />
+                      {/* <MapComponent pathCoords={pathCoords ?? []} /> */}
+                      <DriveRouteMap waypoints={pathCoords ?? []} />
                     </div>
 
                     {/* map control buttons */}
