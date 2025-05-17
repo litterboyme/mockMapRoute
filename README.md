@@ -37,7 +37,7 @@ npm run dev
 npm run build
 ```
 
-# BUILD
+# TEST
 
 ```bash
 npm run test
