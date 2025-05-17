@@ -18,14 +18,14 @@ request.interceptors.response.use(
     return response;
   },
   (error) => {
-    console.log("拦截器error", error);
-    //网络超时异常处理
+    console.log("error", error);
+
     if (
       error.code === "ECONNABORTED" ||
       error.message === "Network Error" ||
       error.message.includes("timeout")
     ) {
-      message.error("请求超时，请稍后重试");
+      message.error("try again later");
     }
     return error;
   }
