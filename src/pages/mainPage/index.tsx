@@ -1,12 +1,7 @@
 // The code uses Tailwind CSS. Install Tailwind CSS in your dev environment to ensure all styles work.
-import React, { useState } from 'react'
-import { Input, Button, Modal, message } from 'antd'
-import {
-  EnvironmentOutlined,
-  AimOutlined,
-  PlusOutlined,
-  MinusOutlined,
-} from '@ant-design/icons'
+import React, { useState, useRef } from 'react'
+import { Button, message } from 'antd'
+import { PlusOutlined, MinusOutlined } from '@ant-design/icons'
 import {
   postRouteSuccess,
   getRoute,
@@ -14,6 +9,7 @@ import {
   getRoutesuccess,
   getRoute500,
   getRoutefailure,
+  postRoute,
 } from '../../apis'
 import MapComponent from './components/mapComponents'
 import AddressInputAutoComplete from './components/addressInput'
@@ -30,12 +26,16 @@ const App: React.FC = () => {
   const [estimatedTime, setEstimatedTime] = useState<number>(0)
   const [isRouteExist, setIsRouteExist] = useState<boolean>(true)
   const RETRY_DELAY = 2000
-  const MAX_RETRIES = 10
+  const MAX_RETRIES = 5
   const [messageApi, contextHolder] = message.useMessage()
+  const pickupRef = useRef<AddressInputAutoCompleteRef>(null)
+  const dropoffRef = useRef<AddressInputAutoCompleteRef>(null)
 
   const handleReset = () => {
     setOrigin('')
     setDestination('')
+    pickupRef.current?.clear()
+    dropoffRef.current?.clear()
   }
 
   //retry logic
@@ -43,9 +43,10 @@ const App: React.FC = () => {
     let retryCount = 0
     while (retryCount < MAX_RETRIES) {
       try {
-        // const response = await getRoute(token);
-        const response = await getRoutesuccess()
+        const response = await getRoute(token);
+        // const response = await getRoutesuccess()
         // const response = await getRoutefailure()
+        // const response = await getRouteStatusInprogress()
         console.log(response)
 
         // inprogress
@@ -80,13 +81,16 @@ const App: React.FC = () => {
   }
 
   //handle confirm button
-  const getRoute = () => {
+  const handleConfirm = () => {
     if (!origin || !destination) {
+      console.log(origin, destination)
       messageApi.error('Please input start location and destination')
       return
     }
 
-    postRouteSuccess({ origin, destination }).then((res) => {
+    //change api to see different situation
+    postRoute({ origin, destination }).then((res) => {
+    // postRouteSuccess({ origin, destination }).then((res) => {
       console.log(res.data.token)
       getRouteWithRetry(res.data.token).then((res) => {
         console.log(res, 'res')
@@ -121,7 +125,11 @@ const App: React.FC = () => {
                   </label>
 
                   <div className="relative">
-                    <AddressInputAutoComplete setPlace={setOrigin} />
+                    <AddressInputAutoComplete
+                      ref={pickupRef}
+                      setPlace={setOrigin}
+                      place={origin}
+                    />
                   </div>
                 </div>
 
@@ -130,7 +138,11 @@ const App: React.FC = () => {
                     destination
                   </label>
                   <div className="relative">
-                    <AddressInputAutoComplete setPlace={setDestination} />
+                    <AddressInputAutoComplete
+                      ref={dropoffRef}
+                      setPlace={setDestination}
+                      place={destination}
+                    />
                   </div>
                 </div>
                 <div className="flex space-x-4">
@@ -138,7 +150,7 @@ const App: React.FC = () => {
                   <Button
                     type="primary"
                     className="h-10 w-28 bg-blue-500 hover:bg-blue-600 text-white font-medium cursor-pointer whitespace-nowrap !rounded-button"
-                    onClick={() => getRoute()}
+                    onClick={handleConfirm}
                   >
                     confirm
                   </Button>

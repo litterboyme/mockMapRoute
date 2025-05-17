@@ -1,22 +1,21 @@
-import React, { useRef, useEffect } from 'react'
-import { LoadScript } from '@react-google-maps/api'
-import {
-  EnvironmentOutlined,
-  AimOutlined,
-  PlusOutlined,
-  MinusOutlined,
-} from '@ant-design/icons'
-import { Input } from 'antd'
+import React, { useRef, useEffect, useImperativeHandle,forwardRef } from 'react'
 
-const AddressInput = ({
-  onPlaceSelected,
-}: {
-  onPlaceSelected: (
-    location: { lat: number; lng: number },
-    place: string
-  ) => void
-}) => {
-  const inputRef = useRef(null)
+const AddressInput = React.forwardRef<
+  HTMLInputElement,
+  {
+    onPlaceSelected: (
+      location: { lat: number; lng: number },
+      place: string
+    ) => void
+  }
+>(({ onPlaceSelected }, ref) => {
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  useImperativeHandle<HTMLInputElement, { clear: () => void }>(ref, () => ({
+    clear: () => {
+      if (inputRef.current) inputRef.current.value = ''
+    },
+  }))
 
   useEffect(() => {
     if (!window.google || !inputRef.current) return
@@ -60,33 +59,52 @@ const AddressInput = ({
       </span>
       <input
         ref={inputRef}
+        onInput={(e) =>
+          onPlaceSelected({}, (e.target as HTMLInputElement).value)
+        }
         placeholder="please input destination"
         className="w-full border-none focus:outline-none placeholder:text-gray-400 text-sm"
       />
     </div>
   )
-}
+})
 
-const AddressInputAutoComplete = ({
-  setPlace,
-}: {
-  setPlace: (place: string) => void
-}) => {
-  const handlePlace = (
-    location: { lat: number; lng: number },
-    place: string
+const AddressInputAutoComplete = forwardRef(
+  (
+    {
+      setPlace,
+      place,
+    }: {
+      setPlace: (place: string) => void
+      place: string
+    },
+    ref
   ) => {
-    console.log('Selected location:', location)
-    console.log('Full place info:', place)
-    // 可将坐标传入地图或路径点等
-    setPlace(place)
-  }
+    const inputRef = useRef<{ clear: () => void }>(null)
 
-  return (
-    <div className="max-w-md mx-auto mt-8">
-      <AddressInput onPlaceSelected={handlePlace} />
-    </div>
-  )
-}
+    const handlePlace = (
+      location: { lat: number; lng: number },
+      place: string
+    ) => {
+      console.log('Selected location:', location)
+      console.log('Full place info:', place)
+      // 可将坐标传入地图或路径点等
+      setPlace(place)
+    }
+
+    useImperativeHandle(ref, () => ({
+      clear: () => {
+        inputRef.current?.clear()
+        setPlace('')
+      },
+    }))
+
+    return (
+      <div className="max-w-md mx-auto mt-8">
+        <AddressInput ref={inputRef} onPlaceSelected={handlePlace} />
+      </div>
+    )
+  }
+)
 
 export default AddressInputAutoComplete
