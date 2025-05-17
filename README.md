@@ -23,7 +23,7 @@ Add the following content:
 VITE_GOOGLE_MAPS_API_KEY=your_actual_api_key_here
 ```
 
->make sure your key allow you to use the server of GoogleMap API
+>make sure your key allow you to use the serve of GoogleMap API 
 
 # Start dev
 
