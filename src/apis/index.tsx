@@ -7,7 +7,7 @@ export function postRoute(params: { origin: string; destination: string }) {
 }
 
 export function postRoute500(params: { origin: string; destination: string }) {
-  return request.post(`${commonUrl}route/500`, params)
+  return request.post(`${commonUrl}/route/500`, params)
 }
 
 export function postRouteSuccess(params: {
